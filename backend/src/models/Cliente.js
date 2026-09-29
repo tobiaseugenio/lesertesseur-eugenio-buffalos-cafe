@@ -1,5 +1,6 @@
 class Cliente{
-    constructor(nombre, mail, saldo){
+    constructor(id, nombre, mail, saldo){
+        this.id = id
         this.nombre = nombre
         this.mail = mail
         this.saldo = saldo
