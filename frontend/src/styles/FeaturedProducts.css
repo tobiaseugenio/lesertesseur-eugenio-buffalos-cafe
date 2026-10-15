@@ -20,6 +20,15 @@
   width: 100%;
 }
 
+.featured__product h3,
+.featured__product p {
+  margin-top: 12px;
+}
+
+.featured__product p {
+  font-weight: 500;
+}
+
 @media (max-width: 900px) {
   .featured__grid {
     grid-template-columns: repeat(2, 1fr);
