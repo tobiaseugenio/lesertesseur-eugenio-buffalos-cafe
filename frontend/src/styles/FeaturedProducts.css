@@ -1,0 +1,31 @@
+.featured {
+  padding: 120px var(--page-padding) 0;
+}
+
+.featured__title {
+  font-size: 40px;
+  font-weight: 700;
+  padding-left: 42px;
+  margin-bottom: 52px;
+}
+
+.featured__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 46px;
+}
+
+.featured__item {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .featured__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .featured__title {
+    padding-left: 0;
+    font-size: 28px;
+  }
+}

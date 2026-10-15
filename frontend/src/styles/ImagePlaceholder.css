@@ -1,0 +1,26 @@
+.image-placeholder {
+  position: relative;
+  border: 1px solid var(--black);
+  border-radius: 4px;
+  background: var(--white);
+  overflow: hidden;
+}
+
+.image-placeholder svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.image-placeholder line {
+  stroke: var(--black);
+  stroke-width: 1;
+}
+
+.image-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

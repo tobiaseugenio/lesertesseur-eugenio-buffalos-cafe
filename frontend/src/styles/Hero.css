@@ -1,0 +1,21 @@
+.hero {
+  position: relative;
+  height: 244px;
+  border-top: 1px solid #999;
+}
+
+.hero__image {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+}
+
+.hero__title {
+  position: absolute;
+  top: 50%;
+  left: 29%;
+  transform: translateY(-50%);
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
