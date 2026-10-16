@@ -24,6 +24,19 @@ class AlimentoController {
             next(error);
         }
     };
+
+    delete = (req, res, next) => {
+        try {
+            const alimento = alimentoService.delete(req.params.id);
+            ApiResponse.success(
+                res,
+                HttpStatus.OK,
+                AlimentoResponse.fromAlimento(alimento)
+            );
+        } catch (error) {
+            next(error);
+        }
+    };
 }
 
 export default new AlimentoController();

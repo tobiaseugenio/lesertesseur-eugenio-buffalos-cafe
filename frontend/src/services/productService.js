@@ -1,4 +1,5 @@
-const API_URL = `${(import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "")}/products`;
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
+const API_URL = `${API_BASE_URL}/products`;
 
 async function requestProducts(options, fallbackMessage) {
   let response;
@@ -6,9 +7,12 @@ async function requestProducts(options, fallbackMessage) {
   try {
     response = await fetch(API_URL, options);
   } catch (error) {
-    if (error instanceof TypeError) {
+    if (
+      error instanceof TypeError ||
+      (error instanceof Error && error.name === "NetworkError")
+    ) {
       throw new Error(
-        "No se pudo conectar con el backend. Comprueba que esté iniciado en http://localhost:3000."
+        `No se pudo conectar con el backend. Comprueba que esté iniciado en ${API_BASE_URL}.`
       );
     }
 

@@ -1,5 +1,5 @@
 import alimentoRepository from "../repositories/AlimentoRepository.js";
-import { BadRequestError } from "../exceptions/AppError.js";
+import { BadRequestError, NotFoundError } from "../exceptions/AppError.js";
 
 class AlimentoService {
     getAll(){
@@ -9,6 +9,20 @@ class AlimentoService {
     create(data){
         this.#validar(data);
         return alimentoRepository.create(data);
+    }
+
+    delete(id){
+        if(!/^[1-9]\d*$/.test(id)){
+            throw new BadRequestError("El id debe ser un entero positivo.");
+        }
+
+        const alimento = alimentoRepository.deleteById(Number(id));
+
+        if(!alimento){
+            throw new NotFoundError("No se encontró un producto con ese id.");
+        }
+
+        return alimento;
     }
 
     #validar(data){

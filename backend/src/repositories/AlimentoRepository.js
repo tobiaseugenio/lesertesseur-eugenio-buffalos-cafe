@@ -19,6 +19,16 @@ class AlimentoRepository {
         this.#alimentos.push(alimento);
         return alimento;
     }
+
+    deleteById(id){
+        const index = this.#alimentos.findIndex((alimento) => alimento.id === id);
+
+        if(index === -1){
+            return null;
+        }
+
+        return this.#alimentos.splice(index, 1)[0];
+    }
 }
 
 export default new AlimentoRepository();
