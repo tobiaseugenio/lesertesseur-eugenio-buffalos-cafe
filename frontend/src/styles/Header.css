@@ -5,6 +5,7 @@
   gap: 24px;
   background: var(--gray);
   padding: 22px var(--page-padding);
+  background-color: #f9be3f;
 }
 
 .header__logo {

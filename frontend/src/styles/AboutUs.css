@@ -3,6 +3,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 40px;
   padding: 90px var(--page-padding) 130px;
+  background-color: #ececec;
 }
 
 .about__title {
