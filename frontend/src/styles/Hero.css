@@ -13,9 +13,10 @@
 .hero__title {
   position: absolute;
   top: 50%;
-  left: 29%;
-  transform: translateY(-50%);
-  font-size: 40px;
+  left: 50%;
+  max-width: calc(100% - 2 * var(--page-padding));
+  transform: translate(-50%, -50%);
+  font-size: clamp(24px, 4vw, 40px);
   font-weight: 700;
   letter-spacing: 0.5px;
 }

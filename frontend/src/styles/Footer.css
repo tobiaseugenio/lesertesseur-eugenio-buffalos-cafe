@@ -3,7 +3,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 40px;
   background: var(--gray);
-  padding: 16px var(--page-padding) 20px 124px;
+  padding: 16px var(--page-padding) 20px;
   font-size: 11px;
 }
 
@@ -14,7 +14,7 @@
 }
 
 .footer__contact h3 {
-  padding-left: 15px;
+  padding-left: 0;
 }
 
 .footer__contact p {
@@ -26,6 +26,7 @@
   display: flex;
   gap: 12px;
   font-size: 14px;
+  justify-content: center;
 }
 
 .footer__social a {
