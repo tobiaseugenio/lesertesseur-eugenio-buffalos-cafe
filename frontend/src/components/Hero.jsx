@@ -1,11 +1,11 @@
-import ImagePlaceholder from "./ImagePlaceholder";
+import heroBackground from "../assets/heroSectionBg.png";
 import { CAFE_NAME } from "../utils/constants";
 import "../styles/Hero.css";
 
 function Hero() {
   return (
     <section className="hero">
-      <ImagePlaceholder className="hero__image" />
+      <img className="hero__image" src={heroBackground} alt="" />
       <h1 className="hero__title">{CAFE_NAME.toUpperCase()}</h1>
     </section>
   );

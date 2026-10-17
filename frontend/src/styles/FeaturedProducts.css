@@ -19,6 +19,8 @@
 .featured__item {
   aspect-ratio: 1 / 1;
   width: 100%;
+  border-color: #232323;
+  border-width: 5px;
 }
 
 .featured__product h3,
