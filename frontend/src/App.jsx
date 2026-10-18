@@ -1,9 +1,15 @@
 import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
+import CreateProduct from "./pages/CreateProduct";
 import "./styles/global.css";
- 
+
 function App() {
-  const productMatch = window.location.pathname.match(/^\/productos\/([^/]+)\/?$/);
+  const path = window.location.pathname;
+  const productMatch = path.match(/^\/productos\/([^/]+)\/?$/);
+
+  if (path.replace(/\/$/, "") === "/crear-producto") {
+    return <CreateProduct />;
+  }
 
   if (productMatch) {
     return <ProductDetail productId={productMatch[1]} />;
@@ -11,6 +17,5 @@ function App() {
 
   return <Home />;
 }
- 
+
 export default App;
- 
