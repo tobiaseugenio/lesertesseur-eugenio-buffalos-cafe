@@ -28,7 +28,7 @@ function FeaturedProducts() {
   }, []);
 
   return (
-    <section className="featured">
+    <section className="featured" id="productos">
       <h2 className="featured__title">NUESTROS PRODUCTOS ESTRELLA</h2>
       {loading && <p role="status">Cargando productos...</p>}
       {!loading && error && <p role="alert">{error}</p>}

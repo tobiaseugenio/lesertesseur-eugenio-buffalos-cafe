@@ -44,8 +44,19 @@ class AlimentoService {
             throw new BadRequestError("El stock es obligatorio y debe ser un entero mayor o igual a cero.");
         }
 
-        if(imagen !== undefined && typeof imagen !== "string"){
-            throw new BadRequestError("La imagen debe ser una URL en formato de texto.");
+        if(typeof imagen !== "string" || !imagen.trim()){
+            throw new BadRequestError("La imagen es obligatoria y debe ser una URL válida.");
+        }
+
+        let imageUrl;
+        try{
+            imageUrl = new URL(imagen);
+        }catch{
+            throw new BadRequestError("La imagen debe ser una URL válida.");
+        }
+
+        if(!["http:", "https:"].includes(imageUrl.protocol) || !imageUrl.hostname){
+            throw new BadRequestError("La imagen debe ser una URL HTTP o HTTPS válida.");
         }
     }
 }
