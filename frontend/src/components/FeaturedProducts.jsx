@@ -39,15 +39,21 @@ function FeaturedProducts() {
         <div className="featured__grid">
           {products.map((product, index) => (
             <article className="featured__product" key={product.id ?? `${product.nombre}-${index}`}>
-              <ImagePlaceholder
-                className="featured__item"
-                src={product.imagen}
-                alt={product.nombre}
-              />
-              <h3>{product.nombre}</h3>
-              {product.precioUnitario !== undefined && (
-                <p>${product.precioUnitario}</p>
-              )}
+              <a
+                className="featured__link"
+                href={`/productos/${product.id}`}
+                aria-label={`Ver detalles de ${product.nombre}`}
+              >
+                <ImagePlaceholder
+                  className="featured__item"
+                  src={product.imagen}
+                  alt={product.nombre}
+                />
+                <h3>{product.nombre}</h3>
+                {product.precioUnitario !== undefined && (
+                  <p>${product.precioUnitario}</p>
+                )}
+              </a>
             </article>
           ))}
         </div>

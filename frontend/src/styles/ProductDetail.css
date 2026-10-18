@@ -1,0 +1,73 @@
+.product {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 38vw 1fr;
+  column-gap: 3.25vw;
+  align-content: center;
+  align-items: start;
+  padding: 2vh 6.25vw;
+  background: var(--light-gray);
+}
+
+/* La imagen ocupa ~72% del alto disponible entre header y footer,
+   sin superar el 38% del ancho: así nunca aparece scroll en escritorio */
+.product__image {
+  width: min(100%, calc(0.72 * (100vh - var(--header-h) - var(--footer-h))));
+  aspect-ratio: 1 / 1;
+}
+
+.product__info {
+  max-width: 47vw;
+}
+
+.product__name {
+  font-size: clamp(28px, 3.5vw, 72px);
+  font-weight: 500;
+  line-height: 1.1;
+  margin-top: 0.3vw;
+}
+
+.product__price {
+  font-size: clamp(20px, 2.4vw, 48px);
+  font-weight: 600;
+  line-height: 1.2;
+  margin-top: 0.9vw;
+}
+
+.product__stock {
+  font-size: clamp(14px, 1.4vw, 28px);
+  font-weight: 400;
+  line-height: 1.2;
+  margin-top: 1.1vw;
+}
+
+@media (max-width: 800px) {
+  .product {
+    grid-template-columns: 1fr;
+    row-gap: 24px;
+    padding: 24px;
+  }
+
+  .product__image {
+    width: min(100%, 60vh);
+    margin: 0 auto;
+  }
+
+  .product__info {
+    max-width: none;
+  }
+
+  .product__name {
+    font-size: 28px;
+  }
+
+  .product__price {
+    font-size: 22px;
+    margin-top: 8px;
+  }
+
+  .product__stock {
+    font-size: 16px;
+    margin-top: 12px;
+  }
+}
