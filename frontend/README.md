@@ -13,6 +13,30 @@ mediante `src/services/productService.js`. Para apuntar a otra API, define
 `VITE_API_URL` con su URL base (sin la barra final). El backend permite por defecto
 el origen `http://localhost:5173`; puedes cambiarlo con `FRONTEND_ORIGIN`.
 
+## Registro e inicio de sesión
+
+El registro crea una cuenta con saldo inicial `0`. No envíes el saldo en el body:
+el backend lo asigna y lo mantiene asociado al usuario autenticado.
+
+Para registrarte, envía `POST http://localhost:3000/auth/register` con JSON:
+
+```json
+{
+  "nombre": "Ana Pérez",
+  "mail": "ana@example.com",
+  "password": "una-clave-segura"
+}
+```
+
+Para iniciar sesión, envía `POST http://localhost:3000/auth/login` con `mail` y
+`password`. Ambos endpoints responden con `data.token` y `data.user`. El perfil
+actual se consulta con `GET http://localhost:3000/auth/me` y el header
+`Authorization: Bearer {token}`. Las contraseñas se guardan hasheadas; la sesión
+expira a las 8 horas.
+
+Las cuentas y saldos se almacenan en memoria, igual que los productos, por lo que
+se reinician al reiniciar el backend.
+
 ## Crear productos desde Postman
 
 - Método: `POST`

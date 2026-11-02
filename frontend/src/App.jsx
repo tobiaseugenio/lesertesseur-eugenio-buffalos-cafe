@@ -3,6 +3,7 @@ import ProductDetail from "./pages/ProductDetail";
 import CreateProduct from "./pages/CreateProduct";
 import Menu from "./pages/Menu";
 import Cart from "./pages/Cart";
+import Auth from "./pages/Auth";
 import "./styles/global.css";
 
 function App() {
@@ -19,6 +20,10 @@ function App() {
 
   if (path.replace(/\/$/, "") === "/carrito") {
     return <Cart />;
+  }
+
+  if (path.replace(/\/$/, "") === "/login") {
+    return <Auth />;
   }
 
   if (productMatch) {
