@@ -43,7 +43,11 @@ class AlimentoService {
             throw new BadRequestError("El cuerpo de la solicitud debe ser un objeto JSON.");
         }
 
-        const { nombre, precioUnitario, stock, imagen } = data;
+        const { nombre, precioUnitario, stock, imagen, esProductoEstrella } = data;
+
+        if(esProductoEstrella !== undefined && typeof esProductoEstrella !== "boolean"){
+            throw new BadRequestError("esProductoEstrella debe ser un valor booleano.");
+        }
 
         if(typeof nombre !== "string" || !nombre.trim()){
             throw new BadRequestError("El nombre es obligatorio y debe ser texto.");

@@ -13,7 +13,7 @@ function FeaturedProducts() {
 
     getProducts()
       .then((data) => {
-        if (isMounted) setProducts(data);
+        if (isMounted) setProducts(data.filter((product) => product.esProductoEstrella));
       })
       .catch((requestError) => {
         if (isMounted) setError(requestError.message);
@@ -33,7 +33,7 @@ function FeaturedProducts() {
       {loading && <p role="status">Cargando productos...</p>}
       {!loading && error && <p role="alert">{error}</p>}
       {!loading && !error && products.length === 0 && (
-        <p>No hay productos disponibles por el momento.</p>
+        <p>No hay productos estrella disponibles por el momento.</p>
       )}
       {!loading && !error && products.length > 0 && (
         <div className="featured__grid">

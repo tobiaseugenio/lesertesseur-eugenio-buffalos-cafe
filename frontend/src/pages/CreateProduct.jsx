@@ -10,7 +10,13 @@ import {
 } from "../services/productService";
 import "../styles/CreateProduct.css";
 
-const INITIAL_FORM = { nombre: "", precio: "", urlFoto: "", stock: "" };
+const INITIAL_FORM = {
+  nombre: "",
+  precio: "",
+  urlFoto: "",
+  stock: "",
+  esProductoEstrella: false,
+};
 
 function productToForm(product) {
   return {
@@ -18,6 +24,7 @@ function productToForm(product) {
     precio: String(product.precioUnitario),
     urlFoto: product.imagen || "",
     stock: String(product.stock),
+    esProductoEstrella: Boolean(product.esProductoEstrella),
   };
 }
 
@@ -58,8 +65,8 @@ function CreateProduct() {
   }, [pendingDeleteProduct]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, type, value, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
     setError("");
     setSuccessMessage("");
   };
@@ -144,6 +151,7 @@ function CreateProduct() {
         precioUnitario: precio,
         stock,
         imagen: urlFoto,
+        esProductoEstrella: form.esProductoEstrella,
       };
       const product = mode === "edit"
         ? await updateProduct(selectedProductId, productData)
@@ -273,6 +281,15 @@ function CreateProduct() {
                     onChange={handleChange}
                     required
                   />
+                  <label className="create-product__featured-toggle">
+                    <input
+                      type="checkbox"
+                      name="esProductoEstrella"
+                      checked={form.esProductoEstrella}
+                      onChange={handleChange}
+                    />
+                    <span>Incluir en productos estrella</span>
+                  </label>
                 </div>
               </form>
             )}

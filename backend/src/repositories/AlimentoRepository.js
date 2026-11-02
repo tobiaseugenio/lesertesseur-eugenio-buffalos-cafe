@@ -8,13 +8,14 @@ class AlimentoRepository {
         return this.#alimentos;
     }
 
-    create({ nombre, precioUnitario, stock, imagen }){
+    create({ nombre, precioUnitario, stock, imagen, esProductoEstrella = false }){
         const alimento = new Alimento(
             this.#nextId++,
             nombre,
             precioUnitario,
             stock,
-            imagen
+            imagen,
+            esProductoEstrella
         );
         this.#alimentos.push(alimento);
         return alimento;
@@ -24,7 +25,7 @@ class AlimentoRepository {
         return this.#alimentos.find((alimento) => alimento.id === id);
     }
 
-    updateById(id, { nombre, precioUnitario, stock, imagen }){
+    updateById(id, { nombre, precioUnitario, stock, imagen, esProductoEstrella = false }){
         const alimento = this.findById(id);
         if(!alimento) return null;
 
@@ -32,6 +33,7 @@ class AlimentoRepository {
         alimento.precioUnitario = precioUnitario;
         alimento.stock = stock;
         alimento.imagen = imagen;
+        alimento.esProductoEstrella = esProductoEstrella;
 
         return alimento;
     }

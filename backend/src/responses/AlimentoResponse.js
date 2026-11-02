@@ -5,6 +5,7 @@ class AlimentoResponse {
         this.precioUnitario = alimento.precioUnitario;
         this.stock = alimento.stock;
         this.imagen = alimento.imagen;
+        this.esProductoEstrella = alimento.esProductoEstrella ?? false;
     }
 
     static fromAlimentos(alimentos){

@@ -25,13 +25,16 @@ el origen `http://localhost:5173`; puedes cambiarlo con `FRONTEND_ORIGIN`.
   "nombre": "Café americano",
   "precioUnitario": 2500,
   "stock": 20,
-  "imagen": "https://ejemplo.com/cafe.jpg"
+  "imagen": "https://ejemplo.com/cafe.jpg",
+  "esProductoEstrella": true
 }
 ```
 
 `nombre`, `precioUnitario` y `stock` son obligatorios. El precio debe ser un número
 mayor o igual a cero y el stock un entero no negativo. `imagen` es opcional. Una
 creación correcta responde con estado `201` y el producto creado en `data`.
+`esProductoEstrella` indica si el producto aparece en la sección de productos estrella;
+debe ser `true` o `false` y, si se omite, se guarda como `false`.
 Los productos se guardan en memoria y se reinician al reiniciar el backend.
 
 ## Modificar productos desde Postman
@@ -46,7 +49,8 @@ Los productos se guardan en memoria y se reinician al reiniciar el backend.
   "nombre": "Café americano doble",
   "precioUnitario": 3000,
   "stock": 15,
-  "imagen": "https://ejemplo.com/cafe-doble.jpg"
+  "imagen": "https://ejemplo.com/cafe-doble.jpg",
+  "esProductoEstrella": false
 }
 ```
 
