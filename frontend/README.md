@@ -34,6 +34,26 @@ mayor o igual a cero y el stock un entero no negativo. `imagen` es opcional. Una
 creación correcta responde con estado `201` y el producto creado en `data`.
 Los productos se guardan en memoria y se reinician al reiniciar el backend.
 
+## Modificar productos desde Postman
+
+- Método: `PUT`
+- URL: `http://localhost:3000/products/{id}` (reemplaza `{id}` por el id del producto).
+- Header: `Content-Type: application/json`
+- Body: selecciona **raw** y **JSON**. Envía todos los campos del producto:
+
+```json
+{
+  "nombre": "Café americano doble",
+  "precioUnitario": 3000,
+  "stock": 15,
+  "imagen": "https://ejemplo.com/cafe-doble.jpg"
+}
+```
+
+Una actualización correcta responde con estado `200` y el producto actualizado
+en `data`. Si el id no es un entero positivo, responde con estado `400`; si el
+producto no existe, responde con estado `404`.
+
 ## Eliminar productos desde Postman
 
 - Método: `DELETE`
