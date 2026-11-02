@@ -15,6 +15,22 @@
   object-fit: contain;
 }
 
+.header__menu-link {
+  color: var(--gold, #f9be3f);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.header__menu-link:hover {
+  text-decoration: underline;
+}
+
+.header__menu-link:focus-visible {
+  outline: 2px solid var(--gold, #f9be3f);
+  outline-offset: 4px;
+}
+
 .header__search {
   display: flex;
   align-items: center;

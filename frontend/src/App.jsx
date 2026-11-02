@@ -1,6 +1,7 @@
 import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
 import CreateProduct from "./pages/CreateProduct";
+import Menu from "./pages/Menu";
 import "./styles/global.css";
 
 function App() {
@@ -9,6 +10,10 @@ function App() {
 
   if (path.replace(/\/$/, "") === "/crear-producto") {
     return <CreateProduct />;
+  }
+
+  if (path.replace(/\/$/, "") === "/menu") {
+    return <Menu />;
   }
 
   if (productMatch) {
