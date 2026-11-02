@@ -9,6 +9,7 @@
 }
 
 .menu-page__heading h1 {
+  color: #000;
   font-size: 48px;
   font-weight: 500;
   line-height: 1.15;
@@ -32,6 +33,7 @@
 }
 
 .menu-section h2 {
+  color: #000;
   margin-bottom: 16px;
   font-size: 18px;
   font-weight: 500;
