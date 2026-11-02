@@ -20,6 +20,22 @@ class AlimentoRepository {
         return alimento;
     }
 
+    findById(id){
+        return this.#alimentos.find((alimento) => alimento.id === id);
+    }
+
+    updateById(id, { nombre, precioUnitario, stock, imagen }){
+        const alimento = this.findById(id);
+        if(!alimento) return null;
+
+        alimento.nombre = nombre;
+        alimento.precioUnitario = precioUnitario;
+        alimento.stock = stock;
+        alimento.imagen = imagen;
+
+        return alimento;
+    }
+
     deleteById(id){
         const index = this.#alimentos.findIndex((alimento) => alimento.id === id);
 

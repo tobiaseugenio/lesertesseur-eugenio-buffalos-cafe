@@ -25,6 +25,19 @@ class AlimentoController {
         }
     };
 
+    update = (req, res, next) => {
+        try {
+            const alimento = alimentoService.update(req.params.id, req.body);
+            ApiResponse.success(
+                res,
+                HttpStatus.OK,
+                AlimentoResponse.fromAlimento(alimento)
+            );
+        } catch (error) {
+            next(error);
+        }
+    };
+
     delete = (req, res, next) => {
         try {
             const alimento = alimentoService.delete(req.params.id);

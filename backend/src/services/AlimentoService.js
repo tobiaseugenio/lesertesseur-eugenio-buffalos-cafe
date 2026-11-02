@@ -11,6 +11,19 @@ class AlimentoService {
         return alimentoRepository.create(data);
     }
 
+    update(id, data){
+        if(!/^[1-9]\d*$/.test(id)){
+            throw new BadRequestError("El id debe ser un entero positivo.");
+        }
+
+        if(!alimentoRepository.findById(Number(id))){
+            throw new NotFoundError("No se encontró un producto con ese id.");
+        }
+
+        this.#validar(data);
+        return alimentoRepository.updateById(Number(id), data);
+    }
+
     delete(id){
         if(!/^[1-9]\d*$/.test(id)){
             throw new BadRequestError("El id debe ser un entero positivo.");
