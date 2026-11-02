@@ -15,6 +15,12 @@
   object-fit: contain;
 }
 
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
 .header__menu-link {
   color: var(--gold, #f9be3f);
   font-size: 16px;
