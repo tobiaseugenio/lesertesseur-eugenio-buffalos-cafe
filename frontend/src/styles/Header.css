@@ -37,6 +37,20 @@
   outline-offset: 4px;
 }
 
+.header__cart-link span {
+  display: inline-grid;
+  min-width: 20px;
+  height: 20px;
+  place-items: center;
+  margin-left: 3px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: #f9be3f;
+  color: #232323;
+  font-size: 12px;
+  line-height: 1;
+}
+
 .header__search {
   display: flex;
   align-items: center;

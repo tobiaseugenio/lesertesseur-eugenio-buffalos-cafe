@@ -3,12 +3,26 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ImagePlaceholder from "../components/ImagePlaceholder";
 import { getProducts } from "../services/productService";
+import { addToCart } from "../utils/cart";
 import "../styles/ProductDetail.css";
 
 function ProductDetail({ productId }) {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [cartMessage, setCartMessage] = useState("");
+  const [cartError, setCartError] = useState("");
+
+  const handleBuy = () => {
+    try {
+      addToCart(product);
+      setCartError("");
+      setCartMessage(`${product.nombre} se agregó al carrito.`);
+    } catch (requestError) {
+      setCartMessage("");
+      setCartError(requestError.message);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -55,6 +69,20 @@ function ProductDetail({ productId }) {
                 ${Number(product.precioUnitario).toLocaleString("es-AR")}
               </p>
               <p className="product__stock">Disponibles: {product.stock}</p>
+              <button
+                type="button"
+                className="product__buy-button"
+                onClick={handleBuy}
+                disabled={product.stock < 1}
+              >
+                Comprar
+              </button>
+              {cartMessage && (
+                <p className="product__cart-message" role="status">
+                  {cartMessage} <a href="/carrito">Ver carrito</a>
+                </p>
+              )}
+              {cartError && <p className="product__cart-error" role="alert">{cartError}</p>}
             </div>
           </>
         )}

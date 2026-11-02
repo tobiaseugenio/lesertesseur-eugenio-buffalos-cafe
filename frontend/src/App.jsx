@@ -2,6 +2,7 @@ import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
 import CreateProduct from "./pages/CreateProduct";
 import Menu from "./pages/Menu";
+import Cart from "./pages/Cart";
 import "./styles/global.css";
 
 function App() {
@@ -14,6 +15,10 @@ function App() {
 
   if (path.replace(/\/$/, "") === "/menu") {
     return <Menu />;
+  }
+
+  if (path.replace(/\/$/, "") === "/carrito") {
+    return <Cart />;
   }
 
   if (productMatch) {
