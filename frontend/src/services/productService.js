@@ -1,11 +1,11 @@
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
 const API_URL = `${API_BASE_URL}/products`;
 
-async function requestProducts(options, fallbackMessage) {
+async function requestProducts(options, fallbackMessage, url = API_URL) {
   let response;
 
   try {
-    response = await fetch(API_URL, options);
+    response = await fetch(url, options);
   } catch (error) {
     if (
       error instanceof TypeError ||
@@ -49,6 +49,34 @@ export async function createProduct(product) {
 
   if (!result.success || !result.data) {
     throw new Error("La respuesta del servidor no contiene el producto creado.");
+  }
+
+  return result.data;
+}
+
+export async function updateProduct(productId, product) {
+  const result = await requestProducts({
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(product),
+  }, "No se pudo actualizar el producto.", `${API_URL}/${productId}`);
+
+  if (!result.success || !result.data) {
+    throw new Error("La respuesta del servidor no contiene el producto actualizado.");
+  }
+
+  return result.data;
+}
+
+export async function deleteProduct(productId) {
+  const result = await requestProducts({
+    method: "DELETE",
+  }, "No se pudo eliminar el producto.", `${API_URL}/${productId}`);
+
+  if (!result.success) {
+    throw new Error("No se pudo confirmar la eliminación del producto.");
   }
 
   return result.data;
