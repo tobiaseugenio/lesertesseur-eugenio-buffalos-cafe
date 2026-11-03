@@ -66,6 +66,105 @@
   font-size: 14px;
 }
 
+.header__balance-button {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gold, #f9be3f);
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.header__balance-button:focus-visible {
+  outline: 2px solid var(--gold, #f9be3f);
+  outline-offset: 3px;
+}
+
+.balance-dialog {
+  width: min(420px, calc(100% - 32px));
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-top: 5px solid #f9be3f;
+  background: #fff;
+  color: #232323;
+}
+
+.balance-dialog::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+
+.balance-dialog__form {
+  display: grid;
+  gap: 14px;
+  padding: 28px;
+}
+
+.balance-dialog__form h2 {
+  font-size: 22px;
+}
+
+.balance-dialog__form label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.balance-dialog__form input {
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid #777;
+  border-radius: 2px;
+  font: inherit;
+}
+
+.balance-dialog__form input[aria-invalid="true"] {
+  border-color: #a11b1b;
+}
+
+.balance-dialog__error {
+  color: #a11b1b;
+  font-size: 13px;
+}
+
+.balance-dialog__success {
+  color: #176b36;
+  font-size: 13px;
+}
+
+.balance-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.balance-dialog__actions button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #232323;
+  border-radius: 3px;
+  background: #fff;
+  color: #232323;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.balance-dialog__actions button[type="submit"] {
+  border-color: #232323;
+  background: #232323;
+  color: #f9be3f;
+}
+
+.balance-dialog__actions button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 .header__logout {
   border: 0;
   background: transparent;

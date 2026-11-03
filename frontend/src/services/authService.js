@@ -17,24 +17,28 @@ export function logout() {
   window.dispatchEvent(new Event(AUTH_UPDATED_EVENT));
 }
 
-async function requestAuth(path, options = {}) {
+async function requestApi(url, options = {}, fallbackMessage = "No se pudo completar la autenticación.") {
   let response;
 
   try {
-    response = await fetch(`${AUTH_URL}${path}`, options);
+    response = await fetch(url, options);
   } catch {
     throw new Error(`No se pudo conectar con el backend en ${API_BASE_URL}.`);
   }
 
   const result = await response.json().catch(() => ({}));
   if (!response.ok || !result.success) {
-    const error = new Error(result.message || "No se pudo completar la autenticación.");
+    const error = new Error(result.message || fallbackMessage);
     error.status = response.status;
     error.field = result.field;
     throw error;
   }
 
   return result.data;
+}
+
+function requestAuth(path, options = {}) {
+  return requestApi(`${AUTH_URL}${path}`, options);
 }
 
 async function createSession(path, credentials) {
@@ -58,6 +62,42 @@ export function register(credentials) {
 
 export function login(credentials) {
   return createSession("/login", credentials);
+}
+
+export async function addBalance(amount) {
+  const token = getAuthToken();
+  if (!token) throw new Error("Debes iniciar sesión para agregar saldo.");
+
+  const user = await requestAuth("/balance", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ amount }),
+  });
+  window.dispatchEvent(new Event(AUTH_UPDATED_EVENT));
+  return user;
+}
+
+export async function checkoutCart(items) {
+  const token = getAuthToken();
+  if (!token) throw new Error("Debes iniciar sesión para realizar una compra.");
+
+  const purchase = await requestApi(
+    `${API_BASE_URL}/orders/checkout`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ items }),
+    },
+    "No se pudo completar la compra."
+  );
+  window.dispatchEvent(new Event(AUTH_UPDATED_EVENT));
+  return purchase;
 }
 
 export async function getCurrentUser() {

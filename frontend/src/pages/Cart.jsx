@@ -2,7 +2,8 @@ import { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ImagePlaceholder from "../components/ImagePlaceholder";
-import { getCart, removeFromCart, updateCartQuantity } from "../utils/cart";
+import { getAuthToken, checkoutCart } from "../services/authService";
+import { clearCart, getCart, removeFromCart, updateCartQuantity } from "../utils/cart";
 import "../styles/Cart.css";
 
 const priceFormatter = new Intl.NumberFormat("es-AR", {
@@ -13,17 +14,48 @@ const priceFormatter = new Intl.NumberFormat("es-AR", {
 
 function Cart() {
   const [items, setItems] = useState(getCart);
+  const [checkoutError, setCheckoutError] = useState("");
+  const [checkoutMessage, setCheckoutMessage] = useState("");
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const total = items.reduce(
     (sum, item) => sum + Number(item.precioUnitario) * item.quantity,
     0
   );
 
   const changeQuantity = (productId, quantity) => {
+    setCheckoutError("");
     setItems(updateCartQuantity(productId, quantity));
   };
 
   const deleteItem = (productId) => {
+    setCheckoutError("");
     setItems(removeFromCart(productId));
+  };
+
+  const handleCheckout = async () => {
+    setCheckoutError("");
+    setCheckoutMessage("");
+
+    if (!getAuthToken()) {
+      setCheckoutError("Inicia sesión para realizar una compra.");
+      return;
+    }
+
+    setIsCheckingOut(true);
+    try {
+      const purchase = await checkoutCart(
+        items.map(({ id, quantity }) => ({ id, quantity }))
+      );
+      clearCart();
+      setItems([]);
+      setCheckoutMessage(
+        `¡Compra realizada! Se descontaron ${priceFormatter.format(Number(purchase.total))} de tu saldo.`
+      );
+    } catch (requestError) {
+      setCheckoutError(requestError.message);
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   return (
@@ -31,6 +63,15 @@ function Cart() {
       <Header variant="dark" />
       <main className="cart-page">
         <h1 className="cart-page__title">Tu carrito</h1>
+        {checkoutError && (
+          <p className="cart-page__checkout-error" role="alert">
+            {checkoutError}
+            {!getAuthToken() && <> <a href="/login">Iniciar sesión</a></>}
+          </p>
+        )}
+        {checkoutMessage && (
+          <p className="cart-page__checkout-success" role="status">{checkoutMessage}</p>
+        )}
 
         {items.length === 0 ? (
           <section className="cart-empty">
@@ -96,6 +137,14 @@ function Cart() {
                 <strong>{priceFormatter.format(total)}</strong>
               </p>
               <a href="/menu">Seguir comprando</a>
+              <button
+                type="button"
+                className="cart-summary__checkout"
+                onClick={handleCheckout}
+                disabled={isCheckingOut}
+              >
+                {isCheckingOut ? "PROCESANDO..." : "COMPRAR"}
+              </button>
             </aside>
           </div>
         )}

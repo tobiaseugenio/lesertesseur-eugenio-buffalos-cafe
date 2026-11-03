@@ -51,6 +51,10 @@ Registrarse crea una cuenta con saldo inicial `0`, rol `user` e inicia la sesió
 automáticamente. El cliente guarda el token de sesión en `sessionStorage` y el
 header consulta el perfil actual para mostrar el saldo.
 
+Al iniciar sesión, el usuario puede seleccionar **Agregar saldo** en el header
+para sumar un importe positivo de prueba (hasta dos decimales). La operación se
+persiste en MySQL y no está conectada a un medio de pago real.
+
 Para iniciar sesión, elegí **Ingresar** en la página `/login`. Para crear una
 cuenta nueva, elegí **Registrarme**. Las contraseñas se guardan hasheadas y las
 sesiones expiran a las 8 horas.
@@ -61,6 +65,11 @@ administrar productos. La opción **Productos** del header y la página
 de escritura; ocultar la opción en la interfaz no es el control de seguridad.
 La lectura del catálogo sigue siendo pública para el menú y las páginas de
 productos.
+
+En el carrito, **Comprar** requiere iniciar sesión. El backend calcula el total
+con los precios actuales de MySQL, verifica el saldo y el stock, y descuenta
+ambos de forma atómica; una operación inválida no altera ninguno. Las compras
+no se guardan todavía en un historial de pedidos.
 
 ## API
 
@@ -95,6 +104,9 @@ Authorization: Bearer <token>
 
 El perfil contiene `id`, `nombre`, `mail`, `saldo` y `role`.
 
+`POST /auth/balance` requiere autenticación y recibe `{ "amount": 5000 }` para
+sumar saldo simulado. No permite fijar directamente el saldo de la cuenta.
+
 ### Productos
 
 | Método | Ruta | Acceso | Descripción |
@@ -103,6 +115,7 @@ El perfil contiene `id`, `nombre`, `mail`, `saldo` y `role`.
 | `POST` | `/products` | Admin | Crear un producto |
 | `PUT` | `/products/{id}` | Admin | Actualizar un producto |
 | `DELETE` | `/products/{id}` | Admin | Eliminar un producto |
+| `POST` | `/orders/checkout` | Usuario autenticado | Completar el carrito |
 
 Para las operaciones de administración, enviá el token de una cuenta admin en
 `Authorization: Bearer <token>`. Sin sesión, la API responde `401`; con una
@@ -125,6 +138,12 @@ HTTP o HTTPS. `precioUnitario` debe ser un número mayor o igual a cero, `stock`
 un entero no negativo, y `esProductoEstrella` un booleano opcional que por
 defecto es `false`. Crear responde `201`; actualizar y eliminar responden `200`.
 Un ID inválido responde `400` y un producto inexistente responde `404`.
+
+`POST /orders/checkout` recibe `{"items":[{"id":1,"quantity":2}]}` y necesita
+`Authorization: Bearer <token>`. El servidor calcula el precio real consultando
+la base de datos. Si el saldo es insuficiente o no hay stock, responde `409` y
+no modifica el saldo ni las existencias. Una compra exitosa responde `200` con
+el total cobrado y el perfil actualizado; el carrito del navegador se vacía.
 
 Las cuentas, saldos y productos se guardan en MySQL y persisten al reiniciar el
 backend.

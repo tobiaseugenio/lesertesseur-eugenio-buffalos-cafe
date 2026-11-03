@@ -86,6 +86,17 @@ class ClienteRepository {
         return this.findById(id);
     }
 
+    async addBalance(id, amount) {
+        const [result] = await pool.execute(
+            `UPDATE users
+             SET saldo = saldo + ?
+             WHERE id = ? AND saldo <= 9999999999.99 - ?`,
+            [amount, Number(id), amount]
+        );
+        if (result.affectedRows === 0) return null;
+        return this.findById(id);
+    }
+
     async delete(id) {
         const [result] = await pool.execute("DELETE FROM users WHERE id = ?", [Number(id)]);
         return result.affectedRows > 0;

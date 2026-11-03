@@ -76,6 +76,38 @@ class AuthService {
         return cliente;
     }
 
+    async addBalance(userId, data) {
+        if (!data || typeof data !== "object" || Array.isArray(data)) {
+            throw new BadRequestError("El cuerpo de la solicitud debe ser un objeto JSON.");
+        }
+
+        const { amount } = data;
+        if (
+            typeof amount !== "number" ||
+            !Number.isFinite(amount) ||
+            amount <= 0 ||
+            amount > 9999999999.99 ||
+            Number(amount.toFixed(2)) !== amount
+        ) {
+            throw new BadRequestError(
+                "Ingresa un importe positivo con un máximo de dos decimales.",
+                "amount"
+            );
+        }
+
+        const cliente = await clienteRepository.addBalance(userId, amount);
+        if (cliente) return cliente;
+
+        if (!await clienteRepository.findById(userId)) {
+            throw new UnauthorizedError("La sesión no es válida o expiró.");
+        }
+
+        throw new BadRequestError(
+            "El importe supera el saldo máximo permitido.",
+            "amount"
+        );
+    }
+
     #createSession(cliente){
         return {
             token: createAuthToken(cliente.id),

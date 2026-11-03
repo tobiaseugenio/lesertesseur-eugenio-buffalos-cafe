@@ -1,17 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import buffaloLogo from "../assets/Buffalologo.png";
 import { CART_UPDATED_EVENT, getCart } from "../utils/cart";
 import {
   AUTH_UPDATED_EVENT,
+  addBalance,
   getCurrentUser,
   logout,
 } from "../services/authService";
 import "../styles/Header.css";
 
 function Header() {
+  const balanceDialogRef = useRef(null);
   const [cartCount, setCartCount] = useState(0);
   const [user, setUser] = useState(null);
+  const [balanceAmount, setBalanceAmount] = useState("");
+  const [balanceError, setBalanceError] = useState("");
+  const [balanceMessage, setBalanceMessage] = useState("");
+  const [isAddingBalance, setIsAddingBalance] = useState(false);
 
   useEffect(() => {
     const updateCartCount = () => {
@@ -56,6 +62,37 @@ function Header() {
     setUser(null);
   };
 
+  const openBalanceDialog = () => {
+    setBalanceAmount("");
+    setBalanceError("");
+    setBalanceMessage("");
+    balanceDialogRef.current?.showModal();
+  };
+
+  const handleAddBalance = async (event) => {
+    event.preventDefault();
+    setBalanceError("");
+    setBalanceMessage("");
+
+    const amount = Number(balanceAmount);
+    if (!Number.isFinite(amount) || amount <= 0 || Number(amount.toFixed(2)) !== amount) {
+      setBalanceError("Ingresa un importe positivo con un máximo de dos decimales.");
+      return;
+    }
+
+    setIsAddingBalance(true);
+    try {
+      const updatedUser = await addBalance(amount);
+      setUser(updatedUser);
+      setBalanceAmount("");
+      setBalanceMessage("El saldo de prueba se agregó correctamente.");
+    } catch (requestError) {
+      setBalanceError(requestError.message);
+    } finally {
+      setIsAddingBalance(false);
+    }
+  };
+
   const formatBalance = (balance) =>
     new Intl.NumberFormat("es-AR", {
       style: "currency",
@@ -74,6 +111,13 @@ function Header() {
             <span className="header__account">
               <span className="header__user-name">{user.nombre}</span>
               <span>Saldo: {formatBalance(user.saldo)}</span>
+              <button
+                type="button"
+                className="header__balance-button"
+                onClick={openBalanceDialog}
+              >
+                Agregar saldo
+              </button>
             </span>
             <button type="button" className="header__logout" onClick={handleLogout}>
               Salir
@@ -98,6 +142,39 @@ function Header() {
         <FaSearch className="header__search-icon" />
         <input type="text" placeholder="Search..." aria-label="Buscar" />
       </form>
+      <dialog className="balance-dialog" ref={balanceDialogRef} aria-labelledby="balance-title">
+        <form className="balance-dialog__form" onSubmit={handleAddBalance}>
+          <h2 id="balance-title">Agregar saldo de prueba</h2>
+          <p>Este importe simulado se sumará al saldo de tu cuenta.</p>
+          <label htmlFor="balance-amount">Importe (ARS)</label>
+          <input
+            id="balance-amount"
+            type="number"
+            min="0.01"
+            max="9999999999.99"
+            step="0.01"
+            value={balanceAmount}
+            onChange={(event) => {
+              setBalanceAmount(event.target.value);
+              setBalanceError("");
+              setBalanceMessage("");
+            }}
+            aria-invalid={Boolean(balanceError)}
+            aria-describedby={balanceError ? "balance-error" : undefined}
+            required
+          />
+          {balanceError && <p className="balance-dialog__error" id="balance-error" role="alert">{balanceError}</p>}
+          {balanceMessage && <p className="balance-dialog__success" role="status">{balanceMessage}</p>}
+          <div className="balance-dialog__actions">
+            <button type="button" onClick={() => balanceDialogRef.current?.close()}>
+              Cerrar
+            </button>
+            <button type="submit" disabled={isAddingBalance}>
+              {isAddingBalance ? "AGREGANDO..." : "AGREGAR SALDO"}
+            </button>
+          </div>
+        </form>
+      </dialog>
     </header>
   );
 }

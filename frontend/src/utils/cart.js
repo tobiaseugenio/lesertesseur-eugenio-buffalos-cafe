@@ -69,3 +69,7 @@ export function updateCartQuantity(productId, quantity) {
 export function removeFromCart(productId) {
   return saveCart(getCart().filter((item) => String(item.id) !== String(productId)));
 }
+
+export function clearCart() {
+  return saveCart([]);
+}

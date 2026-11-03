@@ -36,6 +36,15 @@ class AuthController {
             next(error);
         }
     };
+
+    addBalance = async (req, res, next) => {
+        try {
+            const cliente = await authService.addBalance(req.auth.userId, req.body);
+            ApiResponse.success(res, HttpStatus.OK, ClienteResponse.fromCliente(cliente));
+        } catch (error) {
+            next(error);
+        }
+    };
 }
 
 export default new AuthController();

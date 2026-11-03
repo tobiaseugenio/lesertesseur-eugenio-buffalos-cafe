@@ -90,6 +90,7 @@ errores como `{ "success": false, "message": "..." }`.
 | `POST` | `/auth/register` | Crear cuenta `user` y devolver una sesión |
 | `POST` | `/auth/login` | Iniciar sesión |
 | `GET` | `/auth/me` | Consultar el perfil autenticado |
+| `POST` | `/auth/balance` | Agregar saldo de prueba a la cuenta autenticada |
 
 El registro recibe `nombre`, `mail` y `password`, crea una sesión y devuelve
 `data.token` y `data.user`. El frontend guarda el token automáticamente, por lo
@@ -99,6 +100,17 @@ almacenan con hash `scrypt`; los tokens expiran a las 8 horas.
 `/auth/me` requiere el header `Authorization: Bearer <token>` y devuelve
 `id`, `nombre`, `mail`, `saldo` y `role`.
 
+`POST /auth/balance` también requiere ese header y recibe un importe positivo
+con hasta dos decimales:
+
+```json
+{ "amount": 5000 }
+```
+
+La respuesta `200` devuelve el perfil actualizado. Esta es una carga simulada
+para pruebas; no procesa pagos reales. El saldo se incrementa de forma atómica
+en MySQL. Un importe inválido responde `400`.
+
 ### Productos
 
 | Método | Ruta | Acceso | Descripción |
@@ -107,13 +119,21 @@ almacenan con hash `scrypt`; los tokens expiran a las 8 horas.
 | `POST` | `/products` | Admin | Crear producto |
 | `PUT` | `/products/:id` | Admin | Actualizar producto |
 | `DELETE` | `/products/:id` | Admin | Eliminar producto |
+| `POST` | `/orders/checkout` | Usuario autenticado | Comprar los productos del carrito |
 
-Las rutas de escritura requieren un token válido de un administrador. Sin token
-responden `401 Unauthorized`; un usuario autenticado sin rol admin recibe
-`403 Forbidden`. La ruta de lectura es pública para permitir mostrar productos
-en el menú.
+Las rutas de administración de productos (`POST`, `PUT` y `DELETE`) requieren
+un token válido de un administrador. Sin token responden `401 Unauthorized`; un
+usuario autenticado sin rol admin recibe `403 Forbidden`. La ruta de lectura es
+pública para permitir mostrar productos en el menú.
 
 Los campos de creación/actualización son `nombre` (texto no vacío),
 `precioUnitario` (número mayor o igual a cero), `stock` (entero no negativo),
 `imagen` (URL HTTP o HTTPS no vacía) y `esProductoEstrella` (booleano opcional,
 por defecto `false`).
+
+`POST /orders/checkout` requiere un usuario autenticado. Recibe el ID y la
+cantidad solicitada de cada producto; el servidor obtiene precios y stock desde
+MySQL. Calcula el total con precisión decimal, descuenta el saldo y las
+existencias en una única transacción. Si el usuario no tiene saldo suficiente,
+falta stock o un producto ya no existe, la operación completa se revierte. No
+se crea todavía un historial de pedidos.
