@@ -81,7 +81,9 @@ function Header() {
         ) : (
           <a className="header__menu-link" href="/login">Ingresar</a>
         )}
-        <a className="header__menu-link" href="/crear-producto">Productos</a>
+        {user?.role === "admin" && (
+          <a className="header__menu-link" href="/crear-producto">Productos</a>
+        )}
         <a className="header__menu-link" href="/menu">Menú</a>
         <a
           className="header__menu-link header__cart-link"

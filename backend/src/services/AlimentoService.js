@@ -2,34 +2,36 @@ import alimentoRepository from "../repositories/AlimentoRepository.js";
 import { BadRequestError, NotFoundError } from "../exceptions/AppError.js";
 
 class AlimentoService {
-    getAll(){
+    async getAll(){
         return alimentoRepository.findAll();
     }
 
-    create(data){
+    async create(data){
         this.#validar(data);
         return alimentoRepository.create(data);
     }
 
-    update(id, data){
+    async update(id, data){
         if(!/^[1-9]\d*$/.test(id)){
             throw new BadRequestError("El id debe ser un entero positivo.");
         }
 
-        if(!alimentoRepository.findById(Number(id))){
+        if(!await alimentoRepository.findById(Number(id))){
             throw new NotFoundError("No se encontró un producto con ese id.");
         }
 
         this.#validar(data);
-        return alimentoRepository.updateById(Number(id), data);
+        const alimento = await alimentoRepository.updateById(Number(id), data);
+        if(!alimento) throw new NotFoundError("No se encontró un producto con ese id.");
+        return alimento;
     }
 
-    delete(id){
+    async delete(id){
         if(!/^[1-9]\d*$/.test(id)){
             throw new BadRequestError("El id debe ser un entero positivo.");
         }
 
-        const alimento = alimentoRepository.deleteById(Number(id));
+        const alimento = await alimentoRepository.deleteById(Number(id));
 
         if(!alimento){
             throw new NotFoundError("No se encontró un producto con ese id.");

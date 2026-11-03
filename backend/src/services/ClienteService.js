@@ -3,32 +3,32 @@ import { NotFoundError, BadRequestError } from "../exceptions/AppError.js";
 import { Messages } from "../enums/Messages.js";
 
 class ClienteService {
-    getAll(){
+    async getAll(){
         return clienteRepository.findAll();
     }
 
-    getById(id){
-        const cliente = clienteRepository.findById(id);
+    async getById(id){
+        const cliente = await clienteRepository.findById(id);
         if(!cliente){
             throw new NotFoundError(Messages.CLIENTE_NOT_FOUND);
         }
         return cliente;
     }
 
-    create(data){
+    async create(data){
         this.#validar(data);
         return clienteRepository.create(data);
     }
 
-    update(id, data){
-        this.getById(id);
+    async update(id, data){
+        await this.getById(id);
         this.#validar(data, true);
         return clienteRepository.update(id, data);
     }
 
-    delete(id){
-        this.getById(id);
-        clienteRepository.delete(id);
+    async delete(id){
+        await this.getById(id);
+        await clienteRepository.delete(id);
     }
 
     #validar({ nombre, mail, saldo }, esParcial = false){

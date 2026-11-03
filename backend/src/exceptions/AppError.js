@@ -21,6 +21,12 @@ export class UnauthorizedError extends AppError {
     }
 }
 
+export class ForbiddenError extends AppError {
+    constructor(message) {
+        super(message, HttpStatus.FORBIDDEN);
+    }
+}
+
 export class NotFoundError extends AppError {
     constructor(message) {
         super(message, HttpStatus.NOT_FOUND);

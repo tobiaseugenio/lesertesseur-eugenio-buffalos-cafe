@@ -1,24 +1,75 @@
-# Buffalo's Café frontend
+# Buffalo's Café
 
-## Desarrollo
+Aplicación para explorar el menú, ver productos, gestionar una cuenta y
+administrar el catálogo con una cuenta de administrador.
 
-1. Inicia el backend desde `backend` con `npm start` (escucha en `http://localhost:3000`).
-2. Inicia el frontend desde `frontend` con `npm run dev`.
-3. Abre en el navegador la URL que muestra Vite, normalmente `http://localhost:5173`.
+## Requisitos
 
-`http://localhost:3000` es la API del backend, no la página del frontend. Por eso,
-al abrir `http://localhost:3000/` se obtiene una respuesta JSON indicando que esa
-ruta no existe. La sección de productos consulta `GET http://localhost:3000/products`
-mediante `src/services/productService.js`. Para apuntar a otra API, define
-`VITE_API_URL` con su URL base (sin la barra final). El backend permite por defecto
-el origen `http://localhost:5173`; puedes cambiarlo con `FRONTEND_ORIGIN`.
+- Node.js 18 o superior.
+- MySQL 8 en ejecución local.
 
-## Registro e inicio de sesión
+## Configuración e inicio
 
-El registro crea una cuenta con saldo inicial `0`. No envíes el saldo en el body:
-el backend lo asigna y lo mantiene asociado al usuario autenticado.
+### Backend
 
-Para registrarte, envía `POST http://localhost:3000/auth/register` con JSON:
+Seguí las instrucciones de configuración de MySQL, variables de entorno y
+primer administrador en [backend/README.md](../backend/README.md). Luego, desde
+la carpeta `backend`:
+
+```sh
+npm install
+npm run dev
+```
+
+La API escucha por defecto en `http://localhost:3000` y verifica la conexión a
+MySQL antes de iniciar.
+
+### Frontend
+
+Desde la carpeta `frontend`:
+
+```sh
+npm install
+npm run dev
+```
+
+Abrí la URL que muestra Vite, normalmente `http://localhost:5173`. La URL base
+de la API por defecto es `http://localhost:3000`. Para cambiarla, definí
+`VITE_API_URL` en el entorno del frontend. El backend permite por defecto el
+origen `http://localhost:5173`; se puede cambiar con `FRONTEND_ORIGIN`.
+
+Para validar cambios en el frontend:
+
+```sh
+npm run lint
+npm run build
+```
+
+## Cuentas, roles y sesión
+
+Registrarse crea una cuenta con saldo inicial `0`, rol `user` e inicia la sesión
+automáticamente. El cliente guarda el token de sesión en `sessionStorage` y el
+header consulta el perfil actual para mostrar el saldo.
+
+Para iniciar sesión, elegí **Ingresar** en la página `/login`. Para crear una
+cuenta nueva, elegí **Registrarme**. Las contraseñas se guardan hasheadas y las
+sesiones expiran a las 8 horas.
+
+Las cuentas nuevas no pueden elegir su rol: solo un administrador puede
+administrar productos. La opción **Productos** del header y la página
+`/crear-producto` son para admins. El backend también protege las operaciones
+de escritura; ocultar la opción en la interfaz no es el control de seguridad.
+La lectura del catálogo sigue siendo pública para el menú y las páginas de
+productos.
+
+## API
+
+Todas las respuestas exitosas usan el formato `{ "success": true, "data": ... }`.
+Los errores usan `{ "success": false, "message": "..." }`.
+
+### Autenticación
+
+`POST /auth/register` crea una cuenta e inicia sesión automáticamente:
 
 ```json
 {
@@ -28,21 +79,36 @@ Para registrarte, envía `POST http://localhost:3000/auth/register` con JSON:
 }
 ```
 
-Para iniciar sesión, envía `POST http://localhost:3000/auth/login` con `mail` y
-`password`. Ambos endpoints responden con `data.token` y `data.user`. El perfil
-actual se consulta con `GET http://localhost:3000/auth/me` y el header
-`Authorization: Bearer {token}`. Las contraseñas se guardan hasheadas; la sesión
-expira a las 8 horas.
+El nombre es obligatorio (máximo 100 caracteres), el email debe ser válido y la
+contraseña debe tener entre 8 y 128 caracteres. El servidor asigna el saldo y
+el rol; no envíes `saldo` ni `role`. La respuesta `201` contiene
+`data.token` y `data.user`.
 
-Las cuentas y saldos se almacenan en memoria, igual que los productos, por lo que
-se reinician al reiniciar el backend.
+`POST /auth/login` recibe `mail` y `password`; responde `200` con el token y el
+perfil de la cuenta.
 
-## Crear productos desde Postman
+`GET /auth/me` obtiene el perfil de la cuenta autenticada. Enviá el token así:
 
-- Método: `POST`
-- URL: `http://localhost:3000/products`
-- Header: `Content-Type: application/json`
-- Body: selecciona **raw** y **JSON**, por ejemplo:
+```http
+Authorization: Bearer <token>
+```
+
+El perfil contiene `id`, `nombre`, `mail`, `saldo` y `role`.
+
+### Productos
+
+| Método | Ruta | Acceso | Descripción |
+|---|---|---|---|
+| `GET` | `/products` | Público | Lista de productos |
+| `POST` | `/products` | Admin | Crear un producto |
+| `PUT` | `/products/{id}` | Admin | Actualizar un producto |
+| `DELETE` | `/products/{id}` | Admin | Eliminar un producto |
+
+Para las operaciones de administración, enviá el token de una cuenta admin en
+`Authorization: Bearer <token>`. Sin sesión, la API responde `401`; con una
+cuenta común, responde `403`.
+
+El cuerpo de creación y actualización contiene todos los campos:
 
 ```json
 {
@@ -54,41 +120,11 @@ se reinician al reiniciar el backend.
 }
 ```
 
-`nombre`, `precioUnitario` y `stock` son obligatorios. El precio debe ser un número
-mayor o igual a cero y el stock un entero no negativo. `imagen` es opcional. Una
-creación correcta responde con estado `201` y el producto creado en `data`.
-`esProductoEstrella` indica si el producto aparece en la sección de productos estrella;
-debe ser `true` o `false` y, si se omite, se guarda como `false`.
-Los productos se guardan en memoria y se reinician al reiniciar el backend.
+`nombre` e `imagen` son textos obligatorios no vacíos; `imagen` debe ser una URL
+HTTP o HTTPS. `precioUnitario` debe ser un número mayor o igual a cero, `stock`
+un entero no negativo, y `esProductoEstrella` un booleano opcional que por
+defecto es `false`. Crear responde `201`; actualizar y eliminar responden `200`.
+Un ID inválido responde `400` y un producto inexistente responde `404`.
 
-## Modificar productos desde Postman
-
-- Método: `PUT`
-- URL: `http://localhost:3000/products/{id}` (reemplaza `{id}` por el id del producto).
-- Header: `Content-Type: application/json`
-- Body: selecciona **raw** y **JSON**. Envía todos los campos del producto:
-
-```json
-{
-  "nombre": "Café americano doble",
-  "precioUnitario": 3000,
-  "stock": 15,
-  "imagen": "https://ejemplo.com/cafe-doble.jpg",
-  "esProductoEstrella": false
-}
-```
-
-Una actualización correcta responde con estado `200` y el producto actualizado
-en `data`. Si el id no es un entero positivo, responde con estado `400`; si el
-producto no existe, responde con estado `404`.
-
-## Eliminar productos desde Postman
-
-- Método: `DELETE`
-- URL: `http://localhost:3000/products/{id}` (reemplaza `{id}` por el id del producto).
-- No requiere body.
-
-Por ejemplo, `DELETE http://localhost:3000/products/1` elimina el producto con id
-`1` y responde con estado `200` y el producto eliminado en `data`. Si el id no es
-un entero positivo, responde con estado `400`; si no existe un producto con ese id,
-responde con estado `404`.
+Las cuentas, saldos y productos se guardan en MySQL y persisten al reiniciar el
+backend.

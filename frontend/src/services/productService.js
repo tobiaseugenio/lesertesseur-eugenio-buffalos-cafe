@@ -1,5 +1,19 @@
+import { getAuthToken } from "./authService";
+
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
 const API_URL = `${API_BASE_URL}/products`;
+
+function getAdminHeaders(headers = {}) {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Debes iniciar sesión como administrador para administrar productos.");
+  }
+
+  return {
+    ...headers,
+    Authorization: `Bearer ${token}`,
+  };
+}
 
 async function requestProducts(options, fallbackMessage, url = API_URL) {
   let response;
@@ -41,9 +55,9 @@ export async function getProducts() {
 export async function createProduct(product) {
   const result = await requestProducts({
     method: "POST",
-    headers: {
+    headers: getAdminHeaders({
       "Content-Type": "application/json",
-    },
+    }),
     body: JSON.stringify(product),
   }, "No se pudo crear el producto.");
 
@@ -57,9 +71,9 @@ export async function createProduct(product) {
 export async function updateProduct(productId, product) {
   const result = await requestProducts({
     method: "PUT",
-    headers: {
+    headers: getAdminHeaders({
       "Content-Type": "application/json",
-    },
+    }),
     body: JSON.stringify(product),
   }, "No se pudo actualizar el producto.", `${API_URL}/${productId}`);
 
@@ -73,6 +87,7 @@ export async function updateProduct(productId, product) {
 export async function deleteProduct(productId) {
   const result = await requestProducts({
     method: "DELETE",
+    headers: getAdminHeaders(),
   }, "No se pudo eliminar el producto.", `${API_URL}/${productId}`);
 
   if (!result.success) {

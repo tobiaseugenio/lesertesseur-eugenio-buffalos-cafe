@@ -4,6 +4,7 @@ class ClienteResponse {
         this.nombre = cliente.nombre;
         this.mail = cliente.mail;
         this.saldo = cliente.saldo;
+        this.role = cliente.role;
     }
 
     static fromCliente(cliente){

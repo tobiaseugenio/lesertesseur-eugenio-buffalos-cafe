@@ -4,17 +4,21 @@ import ApiResponse from "../responses/ApiResponse.js";
 import HttpStatus from "../enums/HttpStatus.js";
 
 class AlimentoController {
-    getAll = (req, res) => {
-        ApiResponse.success(
-            res,
-            HttpStatus.OK,
-            AlimentoResponse.fromAlimentos(alimentoService.getAll())
-        );
+    getAll = async (req, res, next) => {
+        try {
+            ApiResponse.success(
+                res,
+                HttpStatus.OK,
+                AlimentoResponse.fromAlimentos(await alimentoService.getAll())
+            );
+        } catch (error) {
+            next(error);
+        }
     };
 
-    create = (req, res, next) => {
+    create = async (req, res, next) => {
         try {
-            const alimento = alimentoService.create(req.body);
+            const alimento = await alimentoService.create(req.body);
             ApiResponse.success(
                 res,
                 HttpStatus.CREATED,
@@ -25,9 +29,9 @@ class AlimentoController {
         }
     };
 
-    update = (req, res, next) => {
+    update = async (req, res, next) => {
         try {
-            const alimento = alimentoService.update(req.params.id, req.body);
+            const alimento = await alimentoService.update(req.params.id, req.body);
             ApiResponse.success(
                 res,
                 HttpStatus.OK,
@@ -38,9 +42,9 @@ class AlimentoController {
         }
     };
 
-    delete = (req, res, next) => {
+    delete = async (req, res, next) => {
         try {
-            const alimento = alimentoService.delete(req.params.id);
+            const alimento = await alimentoService.delete(req.params.id);
             ApiResponse.success(
                 res,
                 HttpStatus.OK,

@@ -1,7 +1,10 @@
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { UnauthorizedError } from "../exceptions/AppError.js";
 
-const TOKEN_SECRET = process.env.AUTH_TOKEN_SECRET || randomBytes(32).toString("hex");
+const TOKEN_SECRET = process.env.AUTH_TOKEN_SECRET;
+if (!TOKEN_SECRET || TOKEN_SECRET.length < 32) {
+    throw new Error("AUTH_TOKEN_SECRET debe estar configurado y tener al menos 32 caracteres.");
+}
 const TOKEN_DURATION_SECONDS = 60 * 60 * 8;
 const TOKEN_HEADER = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
 

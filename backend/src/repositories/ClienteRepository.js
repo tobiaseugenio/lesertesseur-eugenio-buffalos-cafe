@@ -1,60 +1,94 @@
+import pool from "../config/database.js";
 import Cliente from "../models/Cliente.js";
 
+function toCliente(row) {
+    if (!row) return null;
+
+    return new Cliente(
+        row.id,
+        row.nombre,
+        row.mail,
+        Number(row.saldo),
+        row.password_hash,
+        row.password_salt,
+        row.role
+    );
+}
+
 class ClienteRepository {
-    #clientes = [];
-    #nextId = 1;
-
-    findAll(){
-        return this.#clientes;
-    }
-
-    findById(id){
-        return this.#clientes.find(cliente => cliente.id === Number(id));
-    }
-
-    findByMail(mail){
-        const normalizedMail = mail.trim().toLowerCase();
-        return this.#clientes.find(cliente => cliente.mail.toLowerCase() === normalizedMail);
-    }
-
-    createAccount({ nombre, mail, saldo = 0, passwordHash, passwordSalt }){
-        if(this.findByMail(mail)) return null;
-
-        const cliente = new Cliente(
-            this.#nextId++,
-            nombre,
-            mail,
-            saldo,
-            passwordHash,
-            passwordSalt
+    async findAll() {
+        const [rows] = await pool.execute(
+            "SELECT id, nombre, mail, saldo, password_hash, password_salt, role FROM users"
         );
-        this.#clientes.push(cliente);
-        return cliente;
+        return rows.map(toCliente);
     }
 
-    create({ nombre, mail, saldo }){
-        const cliente = new Cliente(this.#nextId++, nombre, mail, saldo);
-        this.#clientes.push(cliente);
-        return cliente;
+    async findById(id) {
+        const [rows] = await pool.execute(
+            "SELECT id, nombre, mail, saldo, password_hash, password_salt, role FROM users WHERE id = ?",
+            [Number(id)]
+        );
+        return toCliente(rows[0]);
     }
 
-    update(id, { nombre, mail, saldo }){
-        const cliente = this.findById(id);
-        if(!cliente) return null;
-
-        if(nombre !== undefined) cliente.nombre = nombre;
-        if(mail !== undefined) cliente.mail = mail;
-        if(saldo !== undefined) cliente.saldo = saldo;
-
-        return cliente;
+    async findByMail(mail) {
+        const [rows] = await pool.execute(
+            "SELECT id, nombre, mail, saldo, password_hash, password_salt, role FROM users WHERE mail = ?",
+            [mail.trim().toLowerCase()]
+        );
+        return toCliente(rows[0]);
     }
 
-    delete(id){
-        const index = this.#clientes.findIndex(cliente => cliente.id === Number(id));
-        if(index === -1) return false;
+    async createAccount({ nombre, mail, saldo = 0, passwordHash, passwordSalt }) {
+        try {
+            const [result] = await pool.execute(
+                `INSERT INTO users (nombre, mail, saldo, password_hash, password_salt)
+                 VALUES (?, ?, ?, ?, ?)`,
+                [nombre, mail, saldo, passwordHash, passwordSalt]
+            );
+            return this.findById(result.insertId);
+        } catch (error) {
+            if (error.code === "ER_DUP_ENTRY") return null;
+            throw error;
+        }
+    }
 
-        this.#clientes.splice(index, 1);
-        return true;
+    async create({ nombre, mail, saldo = 0 }) {
+        const [result] = await pool.execute(
+            `INSERT INTO users (nombre, mail, saldo, password_hash, password_salt)
+             VALUES (?, ?, ?, '', '')`,
+            [nombre, mail.trim().toLowerCase(), saldo]
+        );
+        return this.findById(result.insertId);
+    }
+
+    async update(id, { nombre, mail, saldo }) {
+        const fields = [];
+        const values = [];
+
+        if (nombre !== undefined) {
+            fields.push("nombre = ?");
+            values.push(nombre);
+        }
+        if (mail !== undefined) {
+            fields.push("mail = ?");
+            values.push(mail.trim().toLowerCase());
+        }
+        if (saldo !== undefined) {
+            fields.push("saldo = ?");
+            values.push(saldo);
+        }
+
+        if (fields.length === 0) return this.findById(id);
+
+        values.push(Number(id));
+        await pool.execute(`UPDATE users SET ${fields.join(", ")} WHERE id = ?`, values);
+        return this.findById(id);
+    }
+
+    async delete(id) {
+        const [result] = await pool.execute("DELETE FROM users WHERE id = ?", [Number(id)]);
+        return result.affectedRows > 0;
     }
 }
 

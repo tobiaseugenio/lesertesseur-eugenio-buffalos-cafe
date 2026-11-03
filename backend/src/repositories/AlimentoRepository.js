@@ -1,51 +1,63 @@
+import pool from "../config/database.js";
 import Alimento from "../models/Alimento.js";
 
+function toAlimento(row) {
+    if (!row) return null;
+
+    return new Alimento(
+        row.id,
+        row.nombre,
+        Number(row.precio_unitario),
+        row.stock,
+        row.imagen,
+        Boolean(row.es_producto_estrella)
+    );
+}
+
 class AlimentoRepository {
-    #alimentos = [];
-    #nextId = 1;
-
-    findAll(){
-        return this.#alimentos;
-    }
-
-    create({ nombre, precioUnitario, stock, imagen, esProductoEstrella = false }){
-        const alimento = new Alimento(
-            this.#nextId++,
-            nombre,
-            precioUnitario,
-            stock,
-            imagen,
-            esProductoEstrella
+    async findAll() {
+        const [rows] = await pool.execute(
+            `SELECT id, nombre, precio_unitario, stock, imagen, es_producto_estrella
+             FROM products ORDER BY id`
         );
-        this.#alimentos.push(alimento);
-        return alimento;
+        return rows.map(toAlimento);
     }
 
-    findById(id){
-        return this.#alimentos.find((alimento) => alimento.id === id);
+    async create({ nombre, precioUnitario, stock, imagen, esProductoEstrella = false }) {
+        const [result] = await pool.execute(
+            `INSERT INTO products
+                (nombre, precio_unitario, stock, imagen, es_producto_estrella)
+             VALUES (?, ?, ?, ?, ?)`,
+            [nombre.trim(), precioUnitario, stock, imagen.trim(), esProductoEstrella]
+        );
+        return this.findById(result.insertId);
     }
 
-    updateById(id, { nombre, precioUnitario, stock, imagen, esProductoEstrella = false }){
-        const alimento = this.findById(id);
-        if(!alimento) return null;
-
-        alimento.nombre = nombre;
-        alimento.precioUnitario = precioUnitario;
-        alimento.stock = stock;
-        alimento.imagen = imagen;
-        alimento.esProductoEstrella = esProductoEstrella;
-
-        return alimento;
+    async findById(id) {
+        const [rows] = await pool.execute(
+            `SELECT id, nombre, precio_unitario, stock, imagen, es_producto_estrella
+             FROM products WHERE id = ?`,
+            [Number(id)]
+        );
+        return toAlimento(rows[0]);
     }
 
-    deleteById(id){
-        const index = this.#alimentos.findIndex((alimento) => alimento.id === id);
+    async updateById(id, { nombre, precioUnitario, stock, imagen, esProductoEstrella = false }) {
+        await pool.execute(
+            `UPDATE products
+             SET nombre = ?, precio_unitario = ?, stock = ?, imagen = ?, es_producto_estrella = ?
+             WHERE id = ?`,
+            [nombre.trim(), precioUnitario, stock, imagen.trim(), esProductoEstrella, Number(id)]
+        );
+        return this.findById(id);
+    }
 
-        if(index === -1){
-            return null;
-        }
+    async deleteById(id) {
+        const alimento = await this.findById(id);
+        if (!alimento) return null;
 
-        return this.#alimentos.splice(index, 1)[0];
+        const [result] = await pool.execute("DELETE FROM products WHERE id = ?", [Number(id)]);
+        return result.affectedRows > 0 ? alimento : null;
     }
 }
 

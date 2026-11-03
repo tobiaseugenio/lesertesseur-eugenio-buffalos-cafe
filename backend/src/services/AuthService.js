@@ -29,13 +29,13 @@ class AuthService {
             throw new BadRequestError("La contraseña debe tener entre 8 y 128 caracteres.");
         }
 
-        if(clienteRepository.findByMail(mail)){
+        if(await clienteRepository.findByMail(mail)){
             throw new ConflictError("Ya existe una cuenta con ese email.");
         }
 
         const passwordSalt = randomBytes(16).toString("hex");
         const passwordHash = await scrypt(password, passwordSalt, PASSWORD_KEY_LENGTH);
-        const cliente = clienteRepository.createAccount({
+        const cliente = await clienteRepository.createAccount({
             nombre,
             mail,
             saldo: 0,
@@ -55,7 +55,7 @@ class AuthService {
 
         const mail = typeof data.mail === "string" ? data.mail.trim().toLowerCase() : "";
         const password = data.password;
-        const cliente = clienteRepository.findByMail(mail);
+        const cliente = await clienteRepository.findByMail(mail);
 
         if(!cliente || !cliente.passwordHash || !cliente.passwordSalt || typeof password !== "string"){
             throw new UnauthorizedError("Email o contraseña incorrectos.");
@@ -70,8 +70,8 @@ class AuthService {
         return this.#createSession(cliente);
     }
 
-    getUser(userId){
-        const cliente = clienteRepository.findById(userId);
+    async getUser(userId){
+        const cliente = await clienteRepository.findById(userId);
         if(!cliente) throw new UnauthorizedError("La sesión no es válida o expiró.");
         return cliente;
     }

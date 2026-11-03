@@ -28,9 +28,9 @@ class AuthController {
         }
     };
 
-    me = (req, res, next) => {
+    me = async (req, res, next) => {
         try{
-            const cliente = authService.getUser(req.auth.userId);
+            const cliente = await authService.getUser(req.auth.userId);
             ApiResponse.success(res, HttpStatus.OK, ClienteResponse.fromCliente(cliente));
         }catch(error){
             next(error);
