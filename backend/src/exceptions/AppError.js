@@ -10,8 +10,9 @@ class AppError extends Error {
 }
 
 export class BadRequestError extends AppError {
-    constructor(message) {
+    constructor(message, field) {
         super(message, HttpStatus.BAD_REQUEST);
+        this.field = field;
     }
 }
 
@@ -34,8 +35,9 @@ export class NotFoundError extends AppError {
 }
 
 export class ConflictError extends AppError {
-    constructor(message) {
+    constructor(message, field) {
         super(message, HttpStatus.CONFLICT);
+        this.field = field;
     }
 }
 

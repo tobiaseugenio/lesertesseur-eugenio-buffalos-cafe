@@ -6,11 +6,13 @@ class ApiResponse {
         });
     }
 
-    static error(res, statusCode, message){
-        return res.status(statusCode).json({
+    static error(res, statusCode, message, field){
+        const response = {
             success: false,
             message
-        });
+        };
+        if (field) response.field = field;
+        return res.status(statusCode).json(response);
     }
 }
 

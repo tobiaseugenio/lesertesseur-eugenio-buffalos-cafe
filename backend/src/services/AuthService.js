@@ -18,19 +18,19 @@ class AuthService {
         const password = data.password;
 
         if(!nombre || nombre.length > 100){
-            throw new BadRequestError("El nombre es obligatorio y no puede superar los 100 caracteres.");
+            throw new BadRequestError("El nombre es obligatorio y no puede superar los 100 caracteres.", "nombre");
         }
 
-        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){
-            throw new BadRequestError("Ingresa un email válido.");
+        if(mail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){
+            throw new BadRequestError("Ingresa un email válido de hasta 254 caracteres.", "mail");
         }
 
         if(typeof password !== "string" || password.length < 8 || password.length > 128){
-            throw new BadRequestError("La contraseña debe tener entre 8 y 128 caracteres.");
+            throw new BadRequestError("La contraseña debe tener entre 8 y 128 caracteres.", "password");
         }
 
         if(await clienteRepository.findByMail(mail)){
-            throw new ConflictError("Ya existe una cuenta con ese email.");
+            throw new ConflictError("Ya existe una cuenta con ese email.", "mail");
         }
 
         const passwordSalt = randomBytes(16).toString("hex");
@@ -43,7 +43,7 @@ class AuthService {
             passwordSalt
         });
 
-        if(!cliente) throw new ConflictError("Ya existe una cuenta con ese email.");
+        if(!cliente) throw new ConflictError("Ya existe una cuenta con ese email.", "mail");
 
         return this.#createSession(cliente);
     }

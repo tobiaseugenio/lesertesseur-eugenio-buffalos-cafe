@@ -6,7 +6,7 @@ const errorHandler = (err, req, res, next) => {
     const statusCode = err.statusCode || HttpStatus.INTERNAL_SERVER_ERROR;
     const message = err.message || Messages.INTERNAL_SERVER_ERROR;
 
-    ApiResponse.error(res, statusCode, message);
+    ApiResponse.error(res, statusCode, message, err.field);
 };
 
 export default errorHandler;

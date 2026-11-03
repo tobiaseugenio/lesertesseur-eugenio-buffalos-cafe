@@ -53,10 +53,17 @@
 }
 
 .header__account {
+  display: grid;
+  gap: 3px;
   color: #fff;
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
+}
+
+.header__user-name {
+  color: var(--gold, #f9be3f);
+  font-size: 14px;
 }
 
 .header__logout {

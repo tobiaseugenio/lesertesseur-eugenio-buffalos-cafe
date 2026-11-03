@@ -71,8 +71,9 @@ function Header() {
       <nav className="header__nav" aria-label="Navegación principal">
         {user ? (
           <>
-            <span className="header__account" title={user.nombre}>
-              Saldo: {formatBalance(user.saldo)}
+            <span className="header__account">
+              <span className="header__user-name">{user.nombre}</span>
+              <span>Saldo: {formatBalance(user.saldo)}</span>
             </span>
             <button type="button" className="header__logout" onClick={handleLogout}>
               Salir

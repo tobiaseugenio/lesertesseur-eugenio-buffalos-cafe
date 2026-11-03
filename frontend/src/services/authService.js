@@ -30,6 +30,7 @@ async function requestAuth(path, options = {}) {
   if (!response.ok || !result.success) {
     const error = new Error(result.message || "No se pudo completar la autenticación.");
     error.status = response.status;
+    error.field = result.field;
     throw error;
   }
 

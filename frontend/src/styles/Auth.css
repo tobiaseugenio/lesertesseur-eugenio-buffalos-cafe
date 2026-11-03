@@ -79,6 +79,17 @@
   outline-offset: 1px;
 }
 
+.auth-form input[aria-invalid="true"] {
+  border-color: #a11b1b;
+}
+
+.auth-form__field-error {
+  color: #a11b1b;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
 .auth-form__error {
   color: #a11b1b;
   font-size: 14px;
