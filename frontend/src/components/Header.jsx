@@ -8,16 +8,88 @@ import {
   getCurrentUser,
   logout,
 } from "../services/authService";
+import { getProducts } from "../services/productService";
 import "../styles/Header.css";
+
+const priceFormatter = new Intl.NumberFormat("es-AR", {
+  style: "currency",
+  currency: "ARS",
+  maximumFractionDigits: 2,
+});
 
 function Header() {
   const balanceDialogRef = useRef(null);
+  const searchRef = useRef(null);
+  const searchRequestRef = useRef(null);
   const [cartCount, setCartCount] = useState(0);
   const [user, setUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchProducts, setSearchProducts] = useState(null);
+  const [searchError, setSearchError] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [balanceAmount, setBalanceAmount] = useState("");
   const [balanceError, setBalanceError] = useState("");
   const [balanceMessage, setBalanceMessage] = useState("");
   const [isAddingBalance, setIsAddingBalance] = useState(false);
+  const normalizedSearchQuery = searchQuery
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+  const matchingProducts = normalizedSearchQuery && searchProducts
+    ? searchProducts.filter((product) =>
+      product.nombre
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .includes(normalizedSearchQuery)
+    )
+    : [];
+  const showSearchResults = isSearchFocused && normalizedSearchQuery.length > 0;
+
+  useEffect(() => {
+    if (!normalizedSearchQuery || searchProducts) return undefined;
+
+    let isCurrent = true;
+    const timeoutId = window.setTimeout(() => {
+      setIsSearchLoading(true);
+      setSearchError("");
+      if (!searchRequestRef.current) {
+        searchRequestRef.current = getProducts().catch((requestError) => {
+          searchRequestRef.current = null;
+          throw requestError;
+        });
+      }
+
+      searchRequestRef.current
+        .then((products) => {
+          if (isCurrent) setSearchProducts(products);
+        })
+        .catch((requestError) => {
+          if (isCurrent) setSearchError(requestError.message);
+        })
+        .finally(() => {
+          if (isCurrent) setIsSearchLoading(false);
+        });
+    }, 200);
+
+    return () => {
+      isCurrent = false;
+      window.clearTimeout(timeoutId);
+    };
+  }, [normalizedSearchQuery, searchProducts]);
+
+  useEffect(() => {
+    if (!isSearchFocused) return undefined;
+
+    const closeOnOutsideClick = (event) => {
+      if (!searchRef.current?.contains(event.target)) setIsSearchFocused(false);
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [isSearchFocused]);
 
   useEffect(() => {
     const updateCartCount = () => {
@@ -138,10 +210,67 @@ function Header() {
           Carrito <span>{cartCount}</span>
         </a>
       </nav>
-      <form className="header__search" onSubmit={(e) => e.preventDefault()}>
-        <FaSearch className="header__search-icon" />
-        <input type="text" placeholder="Search..." aria-label="Buscar" />
-      </form>
+      <div className="header__search-container" ref={searchRef}>
+        <form
+          className="header__search"
+          role="search"
+          onSubmit={(event) => event.preventDefault()}
+        >
+          <FaSearch className="header__search-icon" aria-hidden="true" />
+          <input
+            type="search"
+            placeholder="Buscar productos..."
+            aria-label="Buscar productos"
+            aria-controls="header-search-results"
+            aria-expanded={showSearchResults}
+            value={searchQuery}
+            onFocus={() => setIsSearchFocused(true)}
+            onChange={(event) => {
+              setSearchQuery(event.target.value);
+              setSearchError("");
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                setIsSearchFocused(false);
+                event.currentTarget.blur();
+              }
+            }}
+          />
+        </form>
+        {showSearchResults && (
+          <div className="header__search-results" id="header-search-results">
+            {isSearchLoading && (
+              <p className="header__search-message" role="status">Buscando productos...</p>
+            )}
+            {searchError && (
+              <p className="header__search-message header__search-message--error" role="alert">
+                {searchError}
+              </p>
+            )}
+            {!isSearchLoading && !searchError && searchProducts && (
+              matchingProducts.length > 0 ? (
+                <ul>
+                  {matchingProducts.map((product) => (
+                    <li key={product.id}>
+                      <a
+                        href={`/productos/${product.id}`}
+                        onClick={() => setIsSearchFocused(false)}
+                      >
+                        <span>{product.nombre}</span>
+                        <span>{priceFormatter.format(Number(product.precioUnitario))}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="header__search-message" role="status">
+                  No se encontraron productos que coincidan.
+                </p>
+              )
+            )}
+          </div>
+        )}
+      </div>
       <dialog className="balance-dialog" ref={balanceDialogRef} aria-labelledby="balance-title">
         <form className="balance-dialog__form" onSubmit={handleAddBalance}>
           <h2 id="balance-title">Agregar saldo de prueba</h2>

@@ -1,7 +1,9 @@
 # Buffalo's Café
 
-Aplicación para explorar el menú, ver productos, gestionar una cuenta y
-administrar el catálogo con una cuenta de administrador.
+Aplicación para explorar el menú, buscar productos desde el header, gestionar
+una cuenta y administrar el catálogo con una cuenta de administrador. El
+buscador muestra coincidencias por nombre sin distinguir mayúsculas ni acentos;
+seleccionar un resultado abre el detalle del producto.
 
 ## Requisitos
 
