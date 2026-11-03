@@ -34,6 +34,12 @@ Generá un secreto estable para los tokens y guardalo como `AUTH_TOKEN_SECRET`:
 openssl rand -hex 32
 ```
 
+Copiá el valor que imprime el comando en `backend/.env`, después del signo `=`:
+
+```env
+AUTH_TOKEN_SECRET=pega_aqui_el_valor_generado
+```
+
 El secreto debe tener al menos 32 caracteres. No compartas ni subas `.env` al
 repositorio. Mantené el mismo secreto entre reinicios: cambiarlo invalida las
 sesiones existentes.
